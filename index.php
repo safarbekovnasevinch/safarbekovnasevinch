@@ -1,67 +1,56 @@
 <?php
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
+$conn = new mysqli("localhost", "root", "", "db_avtosalon");
 
-    $ism = $_POST['ism'];
-    $familiya = $_POST['familiya'];
-    $jins = $_POST['jins'];
-    $viloyat = $_POST['viloyat'];
-    $telefon = $_POST['telefon'];
-
-    echo "<h3>Kiritilgan ma'lumotlar:</h3>";
-    echo "Ism: " . $ism . "<br>";
-    echo "Familiya: " . $familiya . "<br>";
-    echo "Jins: " . $jins . "<br>";
-    echo "Viloyat: " . $viloyat . "<br>";
-    echo "Telefon: " . $telefon . "<br><hr>";
+if ($conn->connect_error) {
+    die("Xatolik: " . $conn->connect_error);
 }
+
+$sql = "SELECT 
+            mijozlar.ism,
+            avtomobillar.model,
+            avtomobillar.rang,
+            sotuvlar.narx
+        FROM sotuvlar
+        INNER JOIN mijozlar 
+            ON sotuvlar.mijoz_id = mijozlar.id
+        INNER JOIN avtomobillar 
+            ON sotuvlar.avto_id = avtomobillar.id";
+
+$result = $conn->query($sql);
 ?>
 
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="UTF-8">
-    <title>Talaba ma'lumotlari</title>
+    <title>Avtosalon</title>
 </head>
+
 <body>
 
-<h2>Talaba ma’lumotlarini kiriting</h2>
+<h2>Avtosalon savdolari</h2>
 
-<form method="post" action="">
-    
-    Ism: <input type="text" name="ism" required><br><br>
+<table border="1">
+<tr>
+    <th>Mijoz</th>
+    <th>Model</th>
+    <th>Rang</th>
+    <th>Narx</th>
+</tr>
 
-    Familiya: <input type="text" name="familiya" required><br><br>
+<?php while($row = $result->fetch_assoc()) { ?>
+<tr>
+    <td><?php echo $row['ism']; ?></td>
+    <td><?php echo $row['model']; ?></td>
+    <td><?php echo $row['rang']; ?></td>
+    <td><?php echo $row['narx']; ?></td>
+</tr>
+<?php } ?>
 
-    Jins:
-    <input type="radio" name="jins" value="Erkak" required> Erkak
-    <input type="radio" name="jins" value="Ayol"> Ayol
-    <br><br>
-
-    Viloyat:
-    <select name="viloyat" required>
-        <option value="">-- Viloyatni tanlang --</option>
-        <option value="Toshkent shahri">Toshkent shahri</option>
-        <option value="Toshkent viloyati">Toshkent viloyati</option>
-        <option value="Andijon">Andijon</option>
-        <option value="Buxoro">Buxoro</option>
-        <option value="Farg'ona">Farg'ona</option>
-        <option value="Jizzax">Jizzax</option>
-        <option value="Namangan">Namangan</option>
-        <option value="Navoiy">Navoiy</option>
-        <option value="Qashqadaryo">Qashqadaryo</option>
-        <option value="Samarqand">Samarqand</option>
-        <option value="Sirdaryo">Sirdaryo</option>
-        <option value="Surxondaryo">Surxondaryo</option>
-        <option value="Xorazm">Xorazm</option>
-        <option value="Qoraqalpog'iston Respublikasi">Qoraqalpog'iston Respublikasi</option>
-    </select>
-    <br><br>
-
-    Telefon: <input type="tel" name="telefon" required><br><br>
-
-    <input type="submit" value="Yuborish">
-
-</form>
+</table>
 
 </body>
 </html>
+
+<?php
+$conn->close();
+?>
